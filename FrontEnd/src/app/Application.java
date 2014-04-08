@@ -1,18 +1,9 @@
 package app;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 
 import swing.ui.DefaultList;
 import service.Produto;
 
-/**
- *
- * @author itakenami
- */
 public class Application {
     
     private static Application instance;

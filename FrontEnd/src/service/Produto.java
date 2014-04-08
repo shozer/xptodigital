@@ -14,11 +14,14 @@ import api.wadl.annotation.XMLCast;
 import client.crud.Service;
 import client.exception.ValidationException;
 import client.request.ApacheRequest;
+import client.response.JSONResponse;
 import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import swing.ui.ModelField;
 
 /**
@@ -38,9 +41,9 @@ public class Produto implements DefaultModel<Produto> {
     public String valor;
     @GridHeader(name = "QTD", size = 10)
     public String quantidade;
-    
-    public static Service<Produto> service = new Service<Produto>(new ApacheRequest("http://localhost:9000/api/produtos"), Produto.class, new TypeToken<List<Produto>>() {}.getType());
-    
+
+    public static Service<Produto> service = new Service<Produto>(new ApacheRequest("http://localhost:9000/api/produtos"), Produto.class, new TypeToken<List<Produto>>() {
+    }.getType());
 
     @Override
     public String toString() {
@@ -52,24 +55,34 @@ public class Produto implements DefaultModel<Produto> {
         return service.findAll();
         //return new LinkedList<Usuario>();
     }
-    
+
     @Override
     public List<Produto> filterGrid(String filter) {
-        
-        List<Produto> lista = service.findAll();
-        
-        if("".equals(filter) || filter.equals("*")){
-            return lista;
+
+        ApacheRequest req = new ApacheRequest("http://localhost:9000/produtos");
+        List<Produto> lista = null;
+
+        try {
+            if ("".equals(filter) || filter.equals("*")) {
+                return service.findAll();
+            } else {
+
+                JSONResponse<Produto> json = new JSONResponse<Produto>(req.get("/find/" + filter));
+                lista = json.getCollectionContent(new TypeToken<List<Produto>>() {
+                }.getType());
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Produto.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         List<Produto> filtro = new ArrayList<Produto>();
         for (Produto user : lista) {
-            if(user.nome.toUpperCase().startsWith(filter.toUpperCase())){
+            if (user.nome.toUpperCase().startsWith(filter.toUpperCase())) {
                 filtro.add(user);
             }
         }
         return filtro;
-        
+
     }
 
     @Override
